@@ -17,12 +17,12 @@ namespace POS.WebApi.Controllers
     public class ProductController : ControllerBase
     {
         private readonly ILogger<ProductController> _logger;
-        private readonly ProductService _productService;
+        private readonly IProductService _productService;
         private readonly IMapper _mapper;
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
         
 
-        public ProductController(ProductService productService, ILogger<ProductController> logger, IMapper mapper, UserService userService)
+        public ProductController(IProductService productService, ILogger<ProductController> logger, IMapper mapper, IUserService userService)
         {
             _productService = productService;
             _logger = logger;

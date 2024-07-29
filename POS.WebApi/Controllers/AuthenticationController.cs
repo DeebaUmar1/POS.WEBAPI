@@ -21,11 +21,11 @@ namespace POS.WebApi.Controllers
     {
         private readonly ILogger<AuthenticationController> _logger;
         private readonly IMapper _mapper;
-        private readonly UserService _userServices;
+        private readonly IUserService _userServices;
      
         private readonly IConfiguration _configuration;
 
-        public AuthenticationController(IConfiguration _configuration, UserService userServices, IMapper mapper, ILogger<AuthenticationController> logger)
+        public AuthenticationController(IConfiguration _configuration, IUserService userServices, IMapper mapper, ILogger<AuthenticationController> logger)
         {
             this._configuration = _configuration;
             _userServices = userServices;
@@ -149,7 +149,7 @@ namespace POS.WebApi.Controllers
                 if (await _userServices.RegisterUserAsync(userEntity))
                 {
                     _logger.LogInformation("User registered successfully!");
-                    return Ok("User registered syccessfully as a Cashier");
+                    return Ok("User registered successfully as a Cashier");
                 }
                 else
                 {
