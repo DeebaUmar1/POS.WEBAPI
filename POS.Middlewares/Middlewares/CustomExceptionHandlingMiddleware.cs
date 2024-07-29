@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Threading.Tasks;
 using System.Net;
-using static POS.Middlewares.Middlewares.CustomExceptions;
 using System.Text.Json;
+using System.Threading.Tasks;
+using static POS.Middlewares.Middlewares.CustomExceptions;
 
 namespace POS.Middlewares.Middlewares
 {
@@ -18,60 +18,83 @@ namespace POS.Middlewares.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            
             try
             {
                 await _next(context);
             }
             catch (ValidationException ex)
             {
+                if (context.Response.HasStarted)
+                {
+                    throw;
+                }
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                await context.Response.WriteAsync(new
+                var response = new
                 {
                     error = ex.Message
-                }.ToString());
+                };
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
             }
             catch (NotFoundException ex)
             {
+                if (context.Response.HasStarted)
+                {
+                    throw;
+                }
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                await context.Response.WriteAsync(new
+                var response = new
                 {
                     error = ex.Message
-                }.ToString());
+                };
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
             }
             catch (UnauthorizedAccessEx ex)
             {
+                if (context.Response.HasStarted)
+                {
+                    throw;
+                }
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                await context.Response.WriteAsync(new
+                var response = new
                 {
                     error = ex.Message
-                }.ToString());
+                };
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
             }
             catch (Exception ex)
             {
+                if (context.Response.HasStarted)
+                {
+                    throw;
+                }
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                await context.Response.WriteAsync(new
+                var response = new
                 {
                     error = "An unexpected error occurred. Please try again later."
-                }.ToString());
+                };
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
             }
-            // Handle 403 Forbidden separately
+
+            // Ensure this part is correctly placed to avoid modifying response after it's started
             if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
             {
-                await context.Response.WriteAsync("You do not have permission to access this resource.");
+                if (!context.Response.HasStarted)
+                {
+                    await context.Response.WriteAsync("You do not have permission to access this resource.");
+                }
             }
-          
-            if (!context.User.Identity.IsAuthenticated)
+           else if (!context.User.Identity.IsAuthenticated)
             {
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("User is not authenticated.");
-                return;
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsync("User is not authenticated.");
+                }
             }
         }
-       
     }
 }

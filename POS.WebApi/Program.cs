@@ -49,7 +49,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<POSDbContext>(options =>
     options.UseInMemoryDatabase("POSDatabase"));
 
-builder.Services.AddSingleton<TokenServices>();
+
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ProductService>();

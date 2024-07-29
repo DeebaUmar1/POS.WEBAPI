@@ -22,18 +22,18 @@ namespace POS.WebApi.Controllers
         private readonly ILogger<AuthenticationController> _logger;
         private readonly IMapper _mapper;
         private readonly UserService _userServices;
-        private readonly TokenServices _tokenService;
+     
         private readonly IConfiguration _configuration;
 
-        public AuthenticationController(IConfiguration _configuration, UserService userServices, IMapper mapper, TokenServices tokenService, ILogger<AuthenticationController> logger)
+        public AuthenticationController(IConfiguration _configuration, UserService userServices, IMapper mapper, ILogger<AuthenticationController> logger)
         {
             this._configuration = _configuration;
             _userServices = userServices;
-            _tokenService = tokenService;
+          
             _mapper = mapper;
             _logger = logger;
         }
-
+/*
         [HttpPost("token")]
         public IActionResult GetToken([FromBody] LoginDTO login)
         {
@@ -54,7 +54,7 @@ namespace POS.WebApi.Controllers
                 throw new Exception("Error generating token");
             }
         }
-
+*/
         [Authorize]
         [HttpPost("SeedUsers")]
         public async Task<IActionResult> SeedUsers()
@@ -163,11 +163,10 @@ namespace POS.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error while registering: {ex.Message}");
-                throw; // Rethrow to be caught by middleware
+                _logger.LogError(ex, "An error occurred during registration");
+                return StatusCode(500, "Internal server error");
             }
         }
-
         [Authorize(Roles = "Admin")]
         [HttpPost("setrole")]
         public async Task<IActionResult> SetRole([FromBody] SetRoleModelDTO model)
