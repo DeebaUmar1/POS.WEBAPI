@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using POS.Models.DTO;
 using POS.Models.Entities;
 using POS.Services;
 using POS.Services.UserServices;
 using POS.Validation;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using System.Text.RegularExpressions;
 using static POS.Middlewares.Middlewares.CustomExceptions;
 
@@ -20,9 +23,11 @@ namespace POS.WebApi.Controllers
         private readonly IMapper _mapper;
         private readonly UserService _userServices;
         private readonly TokenServices _tokenService;
+        private readonly IConfiguration _configuration;
 
-        public AuthenticationController(UserService userServices, IMapper mapper, TokenServices tokenService, ILogger<AuthenticationController> logger)
+        public AuthenticationController(IConfiguration _configuration, UserService userServices, IMapper mapper, TokenServices tokenService, ILogger<AuthenticationController> logger)
         {
+            this._configuration = _configuration;
             _userServices = userServices;
             _tokenService = tokenService;
             _mapper = mapper;
@@ -32,8 +37,14 @@ namespace POS.WebApi.Controllers
         [HttpPost("token")]
         public IActionResult GetToken([FromBody] LoginDTO login)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Data");
+            }
+
             try
             {
+                
                 var token = _tokenService.GenerateToken(login);
                 return Ok(new { token });
             }
@@ -64,6 +75,11 @@ namespace POS.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Login([FromQuery] string username, [FromQuery] string password)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Data");
+            }
+
             try
             {
                 var user = await _userServices.Login(username, password);
@@ -73,8 +89,19 @@ namespace POS.WebApi.Controllers
                 }
 
                 var loggedInUser = _mapper.Map<LoginDTO>(user);
+                var authClaims = new List<Claim>
+                {
+                   new Claim(ClaimTypes.Name, loggedInUser.name),
+                   new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                   new Claim(ClaimTypes.Role, loggedInUser.role.ToString())
+                };
+           
+                string token = GenerateToken(authClaims);
                 _logger.LogInformation("User logged in!");
-                return Ok(GetToken(loggedInUser));
+                return Ok(token);
+            
+                
+               // return Ok(GetToken(loggedInUser));
             }
             catch (UnauthorizedAccessEx ex)
             {
@@ -87,10 +114,14 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
-
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO user)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Data");
+            }
+
             try
             {
                 if (string.IsNullOrEmpty(user.name) || string.Equals(user.name, "string"))
@@ -137,13 +168,18 @@ namespace POS.WebApi.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost("setrole")]
         public async Task<IActionResult> SetRole([FromBody] SetRoleModelDTO model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Data");
+            }
+
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+               /* var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
                 {
                     throw new UnauthorizedAccessEx("Unauthorized access");
@@ -153,7 +189,7 @@ namespace POS.WebApi.Controllers
                 if (user == null || user.role != UserRole.Admin)
                 {
                     throw new UnauthorizedAccessEx("Only admins can update roles");
-                }
+                }*/
                 UserRole role;
                 if (model.role.ToLower() == "admin")
                 {
@@ -188,7 +224,7 @@ namespace POS.WebApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Error while setting role: {ex.Message}");
-                throw; // Rethrow to be caught by middleware
+                throw;// Rethrow to be caught by middleware
             }
         }
 
@@ -206,6 +242,27 @@ namespace POS.WebApi.Controllers
                 _logger.LogError($"Error while getting users: {ex.Message}");
                 throw; // Rethrow to be caught by middleware
             }
+        }
+
+       
+
+
+        private string GenerateToken(IEnumerable<Claim> claims)
+        {
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Issuer = _configuration["JWT:ValidIssuer"],
+                Audience = _configuration["JWT:ValidAudience"],
+                Expires = DateTime.UtcNow.AddHours(3),
+                SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
+                Subject = new ClaimsIdentity(claims)
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

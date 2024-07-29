@@ -11,7 +11,7 @@ using AutoMapper;
 
 namespace POS.WebApi.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
@@ -20,15 +20,15 @@ namespace POS.WebApi.Controllers
         private readonly ProductService _productService;
         private readonly IMapper _mapper;
         private readonly UserService _userService;
-        private readonly TokenServices _tokenService;
+        
 
-        public ProductController(TokenServices tokenService, ProductService productService, ILogger<ProductController> logger, IMapper mapper, UserService userService)
+        public ProductController(ProductService productService, ILogger<ProductController> logger, IMapper mapper, UserService userService)
         {
             _productService = productService;
             _logger = logger;
             _mapper = mapper;
             _userService = userService;
-            _tokenService = tokenService;
+         
         }
 
         [HttpPost("SeedProducts")]
@@ -50,6 +50,11 @@ namespace POS.WebApi.Controllers
         [HttpPost("AddProduct")]
         public async Task<IActionResult> AddProduct(ProductDTO product)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Data");
+            }
+
             try
             {
                 var prod = _mapper.Map<Product>(product);
@@ -119,6 +124,11 @@ namespace POS.WebApi.Controllers
         [HttpPut("UpdateProduct")]
         public async Task<IActionResult> UpdateProduct(int id, UpdateProductDTO product)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Data");
+            }
+
             try
             {
                 var prod = _mapper.Map<Product>(product);

@@ -28,6 +28,11 @@ namespace POS.WebApi.Controllers
         [HttpPost("AddProductToSale/{id}/{quantity}")]
         public async Task<IActionResult> AddProductToSale(int id, int quantity)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Data");
+            }
+
             try
             {
                 bool added = await _transactionService.AddProductToSaleAsync(id, quantity);
@@ -84,6 +89,11 @@ namespace POS.WebApi.Controllers
         [HttpPut("UpdateProductsInSale/{id}/{quantity}")]
         public async Task<IActionResult> UpdateProductsInSale(int id, int quantity)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Data");
+            }
+
             try
             {
                 bool updated = await _transactionService.UpdateProductinSaleAsync(id, quantity);
@@ -112,6 +122,7 @@ namespace POS.WebApi.Controllers
         [HttpGet("GenerateReceipt")]
         public async Task<IActionResult> GenerateReceipt()
         {
+
             try
             {
                 var receipt = await _transactionService.GenerateReceipt();

@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using System.Net;
 using static POS.Middlewares.Middlewares.CustomExceptions;
+using System.Text.Json;
 
 namespace POS.Middlewares.Middlewares
 {
@@ -17,6 +18,7 @@ namespace POS.Middlewares.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
+            
             try
             {
                 await _next(context);
@@ -57,6 +59,19 @@ namespace POS.Middlewares.Middlewares
                     error = "An unexpected error occurred. Please try again later."
                 }.ToString());
             }
+            // Handle 403 Forbidden separately
+            if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
+            {
+                await context.Response.WriteAsync("You do not have permission to access this resource.");
+            }
+          
+            if (!context.User.Identity.IsAuthenticated)
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsync("User is not authenticated.");
+                return;
+            }
         }
+       
     }
 }

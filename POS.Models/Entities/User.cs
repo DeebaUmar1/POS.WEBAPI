@@ -8,10 +8,11 @@ using System.ComponentModel.DataAnnotations;
 using static System.Reflection.Metadata.BlobBuilder;
 using System.ComponentModel.DataAnnotations.Schema;
 using POS.Models.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace POS.Models.Entities
 {
-    public class User 
+    public class User : IdentityUser
     {
         [Key]
         public int Id { get; set; }
