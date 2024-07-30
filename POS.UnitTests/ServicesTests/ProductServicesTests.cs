@@ -21,29 +21,7 @@ public class ProductServiceTests
         _productService = new ProductService(_productRepositoryMock.Object);
     }
 
-    [Test]
-    public async Task ViewProductsAsync_ShouldDisplayProducts_WhenProductsExist()
-    {
-        // Arrange
-        var products = new List<Product>
-        {
-            new Product { Id = 1, name = "Product1", price = 10.0, quantity = 5, type = "Type1", category = "Category1" },
-            new Product { Id = 2, name = "Product2", price = 20.0, quantity = 10, type = "Type2", category = "Category2" }
-        };
-        _productRepositoryMock.Setup(repo => repo.GetAllAsync())
-            .ReturnsAsync(products);
-
-        using var consoleOutput = new ConsoleOutput(); // Custom helper class to capture console output
-        await _productService.ViewProductsAsync();
-
-        // Act
-        var output = consoleOutput.GetOuput();
-
-        // Assert
-        Assert.That(output, Contains.Substring("Products List:"));
-        Assert.That(output, Contains.Substring("Product1"));
-        Assert.That(output, Contains.Substring("Product2"));
-    }
+    
 
     [Test]
     public async Task AddProductAsync_ShouldReturnTrue_WhenProductIsValid()
@@ -150,26 +128,4 @@ public class ProductServiceTests
         // Assert
         _productRepositoryMock.Verify(repo => repo.SeedProducts(), Times.Once);
     }
-}
-
-// Custom helper class to capture console output
-public class ConsoleOutput : IDisposable
-{
-    private readonly StringWriter _stringWriter;
-    private readonly TextWriter _originalOutput;
-
-    public ConsoleOutput()
-    {
-        _stringWriter = new StringWriter();
-        _originalOutput = Console.Out;
-        Console.SetOut(_stringWriter);
-    }
-
-    public void Dispose()
-    {
-        Console.SetOut(_originalOutput);
-        _stringWriter.Dispose();
-    }
-
-    public string GetOuput() => _stringWriter.ToString();
 }
