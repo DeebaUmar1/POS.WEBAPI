@@ -88,7 +88,7 @@ namespace POS.WebApi.Controllers
             try
             {
                 var products = await _productService.GetProductsAsync();
-                var prod = _mapper.Map<ProductDTO>(products);
+                var prod = _mapper.Map<IEnumerable<ProductDTO>>(products);
                 return Ok(prod);
             }
             catch (Exception ex)
