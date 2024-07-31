@@ -42,21 +42,29 @@ namespace PointOfSaleWebAPIs.AutoMapper
              .ForMember(dest => dest.quantity, opt => opt.MapFrom(src => src.Quantity))
             .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.Type));
 
-     /*       CreateMap<PurchaseProductsDTO, PurchaseProducts>()
-           .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
-            .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.price))
-            .ForMember(dest => dest.category, opt => opt.MapFrom(src => src.category))
-            .ForMember(dest => dest.quantity, opt => opt.MapFrom(src => src.quantity))
-           .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.type));
+            CreateMap<Product, ProductDTO>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
+             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.price))
+             .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.category))
+             .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.quantity))
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type));
 
-            CreateMap<PurchaseProducts, PurchaseProductsDTO>()
-          .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
-           .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.price))
-           .ForMember(dest => dest.category, opt => opt.MapFrom(src => src.category))
-           .ForMember(dest => dest.quantity, opt => opt.MapFrom(src => src.quantity))
-          .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.type));*/
+            /*       CreateMap<PurchaseProductsDTO, PurchaseProducts>()
+                  .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
+                   .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.price))
+                   .ForMember(dest => dest.category, opt => opt.MapFrom(src => src.category))
+                   .ForMember(dest => dest.quantity, opt => opt.MapFrom(src => src.quantity))
+                  .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.type));
+
+                   CreateMap<PurchaseProducts, PurchaseProductsDTO>()
+                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
+                  .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.price))
+                  .ForMember(dest => dest.category, opt => opt.MapFrom(src => src.category))
+                  .ForMember(dest => dest.quantity, opt => opt.MapFrom(src => src.quantity))
+                 .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.type));*/
 
             CreateMap<SaleProducts, SaleProductsDTO>();
+
             CreateMap<FinalReceipt, FinalReceiptDTO>()
              .ForMember(dest => dest.Receipt, opt => opt.MapFrom(src => src.Receipt))
              .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount));
