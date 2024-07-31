@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace POS.Middlewares.Middlewares
 {
+    //Class to create custom exceptions
     public class CustomExceptions
     {
         public class UnauthorizedAccessEx : Exception

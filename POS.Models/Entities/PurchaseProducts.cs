@@ -13,7 +13,7 @@ using static System.Reflection.Metadata.BlobBuilder;
 namespace POS.Models.Entities
 {
    
-    public class Product
+    public class PurchaseProducts
     {
         [Required]
         public string id { get; set; }

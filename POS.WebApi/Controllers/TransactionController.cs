@@ -25,6 +25,8 @@ namespace POS.WebApi.Controllers
             _logger = logger;
         }
 
+        //Add Product to sale.
+        //ID will be the id of any product in the inventory
         [HttpPost("AddProductToSale/{id}/{quantity}")]
         public async Task<IActionResult> AddProductToSale(int id, int quantity)
         {
@@ -58,6 +60,7 @@ namespace POS.WebApi.Controllers
             }
         }
 
+        //Cashier can view products in sale anytime
         [HttpGet("ViewProductsinSale")]
         public async Task<IActionResult> ViewSaleProducts()
         {
@@ -86,6 +89,7 @@ namespace POS.WebApi.Controllers
             }
         }
 
+        //Cashier can update the sale(quantity) before generating receipt
         [HttpPut("UpdateProductsInSale/{id}/{quantity}")]
         public async Task<IActionResult> UpdateProductsInSale(int id, int quantity)
         {
@@ -119,6 +123,8 @@ namespace POS.WebApi.Controllers
             }
         }
 
+
+        //Generates the receipt of the products cashier added to sale
         [HttpGet("GenerateReceipt")]
         public async Task<IActionResult> GenerateReceipt()
         {
@@ -149,6 +155,7 @@ namespace POS.WebApi.Controllers
             }
         }
 
+        //To calculate total amount
         [HttpGet("CalculateTotalAmount")]
         public async Task<IActionResult> CalculateTotalAmount()
         {

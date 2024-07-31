@@ -32,8 +32,8 @@ public class UserRepositoryTests
         // Arrange
         var users = new List<User>
         {
-            new User { Id = 1, name = "admin", email = "admin@example.com", password = Password.EncodePasswordToBase64("adminpass"), role = UserRole.Admin },
-            new User { Id = 2, name = "cashier", email = "cashier@example.com", password = Password.EncodePasswordToBase64("cashierpass"), role = UserRole.Cashier }
+            new User { id = "1", name = "admin", email = "admin@example.com", password = Password.EncodePasswordToBase64("adminpass"), role = UserRole.Admin },
+            new User { id = "2", name = "cashier", email = "cashier@example.com", password = Password.EncodePasswordToBase64("cashierpass"), role = UserRole.Cashier }
         };
         _context.Users.AddRange(users);
         await _context.SaveChangesAsync();
@@ -56,7 +56,7 @@ public class UserRepositoryTests
         await _repository.AddAsync(user);
 
         // Assert
-        var addedUser = await _repository.GetUserByIdAsync(user.Id);
+        var addedUser = await _repository.GetUserByIdAsync(Convert.ToInt32(user.Id));
         Assert.IsNotNull(addedUser);
         Assert.AreEqual("newuser", addedUser.name);
     }
@@ -90,7 +90,7 @@ public class UserRepositoryTests
 
         // Assert
         Assert.IsTrue(result);
-        var updatedUser = await _repository.GetUserByIdAsync(user.Id);
+        var updatedUser = await _repository.GetUserByIdAsync(Convert.ToInt32(user.Id));
         Assert.AreEqual(UserRole.Admin, updatedUser.role);
     }
 
@@ -98,7 +98,7 @@ public class UserRepositoryTests
     public async Task GetUserByIdAsync_ShouldReturnUser_WhenUserExists()
     {
         // Arrange
-        var user = new User { Id = 1, name = "user", email = "user@example.com", password = Password.EncodePasswordToBase64("userpass"), role = UserRole.Cashier };
+        var user = new User { id = "1", name = "user", email = "user@example.com", password = Password.EncodePasswordToBase64("userpass"), role = UserRole.Cashier };
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 

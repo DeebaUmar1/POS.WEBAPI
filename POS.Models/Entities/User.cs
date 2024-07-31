@@ -1,22 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
-using static System.Reflection.Metadata.BlobBuilder;
-using System.ComponentModel.DataAnnotations.Schema;
-using POS.Models.Entities;
-using Microsoft.AspNetCore.Identity;
 
 namespace POS.Models.Entities
 {
     public class User : IdentityUser
     {
-        [Key]
-        public int Id { get; set; }
-
+        [Key]  
+        [Required]
+        public string id {  get; set; }
         [Required]
         [StringLength(100)] // Assuming a reasonable length for name
         public string name { get; set; }

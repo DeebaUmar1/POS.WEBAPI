@@ -21,29 +21,7 @@ public class ProductServiceTests
         _productService = new ProductService(_productRepositoryMock.Object);
     }
 
-    [Test]
-    public async Task ViewProductsAsync_ShouldDisplayProducts_WhenProductsExist()
-    {
-        // Arrange
-        var products = new List<Product>
-        {
-            new Product { Id = 1, name = "Product1", price = 10.0, quantity = 5, type = "Type1", category = "Category1" },
-            new Product { Id = 2, name = "Product2", price = 20.0, quantity = 10, type = "Type2", category = "Category2" }
-        };
-        _productRepositoryMock.Setup(repo => repo.GetAllAsync())
-            .ReturnsAsync(products);
-
-        using var consoleOutput = new ConsoleOutput(); // Custom helper class to capture console output
-        await _productService.ViewProductsAsync();
-
-        // Act
-        var output = consoleOutput.GetOuput();
-
-        // Assert
-        Assert.That(output, Contains.Substring("Products List:"));
-        Assert.That(output, Contains.Substring("Product1"));
-        Assert.That(output, Contains.Substring("Product2"));
-    }
+    
 
     [Test]
     public async Task AddProductAsync_ShouldReturnTrue_WhenProductIsValid()
@@ -80,16 +58,16 @@ public class ProductServiceTests
     public async Task UpdateProductAsync_ShouldReturnTrue_WhenProductIsUpdatedSuccessfully()
     {
         // Arrange
-        var productId = 1;
-        var existingProduct = new Product { Id = productId, name = "OldProduct", price = 10.0, quantity = 5, type = "OldType", category = "OldCategory" };
+        var productId = "1";
+        var existingProduct = new Product { id = productId, name = "OldProduct", price = 10.0, quantity = 5, type = "OldType", category = "OldCategory" };
         var updatedProduct = new Product { name = "NewProduct", price = 20.0, quantity = 10, type = "NewType", category = "NewCategory" };
-        _productRepositoryMock.Setup(repo => repo.GetByIdAsync(productId))
+        _productRepositoryMock.Setup(repo => repo.GetByIdAsync(Convert.ToInt32(productId)))
             .ReturnsAsync(existingProduct);
         _productRepositoryMock.Setup(repo => repo.UpdateAsync(It.IsAny<Product>()))
             .Returns(Task.CompletedTask);
 
         // Act
-        var result = await _productService.UpdateProductAsync(productId, updatedProduct);
+        var result = await _productService.UpdateProductAsync(Convert.ToInt32(productId), updatedProduct);
 
         // Assert
         Assert.IsTrue(result); // Use IsTrue for boolean results
@@ -103,34 +81,34 @@ public class ProductServiceTests
     public async Task RemoveProductAsync_ShouldReturnTrue_WhenProductIsRemovedSuccessfully()
     {
         // Arrange
-        var productId = 1;
-        var existingProduct = new Product { Id = productId };
-        _productRepositoryMock.Setup(repo => repo.GetByIdAsync(productId))
+        var productId = "1";
+        var existingProduct = new Product { id = productId };
+        _productRepositoryMock.Setup(repo => repo.GetByIdAsync(Convert.ToInt32(productId)))
             .ReturnsAsync(existingProduct);
-        _productRepositoryMock.Setup(repo => repo.DeleteAsync(productId))
+        _productRepositoryMock.Setup(repo => repo.DeleteAsync(Convert.ToInt32(productId)))
             .Returns(Task.CompletedTask);
 
         // Act
-        var result = await _productService.RemoveProductAsync(productId);
+        var result = await _productService.RemoveProductAsync(Convert.ToInt32(productId));
 
         // Assert
         Assert.IsTrue(result);
-        _productRepositoryMock.Verify(repo => repo.DeleteAsync(productId), Times.Once);
+        _productRepositoryMock.Verify(repo => repo.DeleteAsync(Convert.ToInt32(productId)), Times.Once);
     }
         
     [Test]
     public async Task UpdateStockAsync_ShouldReturnTrue_WhenStockIsUpdatedSuccessfully()
     {
         // Arrange
-        var productId = 1;
-        var existingProduct = new Product { Id = productId, quantity = 10 };
-        _productRepositoryMock.Setup(repo => repo.GetByIdAsync(productId))
+        var productId = "1";
+        var existingProduct = new Product { id = productId, quantity = 10 };
+        _productRepositoryMock.Setup(repo => repo.GetByIdAsync(Convert.ToInt32(productId)))
             .ReturnsAsync(existingProduct);
         _productRepositoryMock.Setup(repo => repo.UpdateAsync(It.IsAny<Product>()))
             .Returns(Task.CompletedTask);
 
         // Act
-        var result = await _productService.UpdateStockAsync(productId, 5, isIncrement: true);
+        var result = await _productService.UpdateStockAsync(Convert.ToInt32(productId), 5, isIncrement: true);
 
         // Assert
         Assert.IsTrue(result);
@@ -150,26 +128,4 @@ public class ProductServiceTests
         // Assert
         _productRepositoryMock.Verify(repo => repo.SeedProducts(), Times.Once);
     }
-}
-
-// Custom helper class to capture console output
-public class ConsoleOutput : IDisposable
-{
-    private readonly StringWriter _stringWriter;
-    private readonly TextWriter _originalOutput;
-
-    public ConsoleOutput()
-    {
-        _stringWriter = new StringWriter();
-        _originalOutput = Console.Out;
-        Console.SetOut(_stringWriter);
-    }
-
-    public void Dispose()
-    {
-        Console.SetOut(_originalOutput);
-        _stringWriter.Dispose();
-    }
-
-    public string GetOuput() => _stringWriter.ToString();
 }

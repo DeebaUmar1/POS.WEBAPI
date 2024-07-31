@@ -30,7 +30,7 @@ public class ProductRepositoryTests
     public async Task GetByIdAsync_ShouldReturnProduct_WhenProductExists()
     {
         // Arrange
-        var product = new Product { Id = 4, name = "TestProduct", price = 100.0, quantity = 10, type = "TestType", category = "TestCategory" };
+        var product = new Product { id = "4", name = "TestProduct", price = 100.0, quantity = 10, type = "TestType", category = "TestCategory" };
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
 
@@ -48,8 +48,8 @@ public class ProductRepositoryTests
         // Arrange
         var products = new List<Product>
         {
-            new Product { Id = 1, name = "Product1", price = 10.0, quantity = 10, type = "Type1", category = "Category1" },
-            new Product { Id = 2, name = "Product2", price = 20.0, quantity = 20, type = "Type2", category = "Category2" }
+            new Product { id = "1", name = "Product1", price = 10.0, quantity = 10, type = "Type1", category = "Category1" },
+            new Product { id = "2", name = "Product2", price = 20.0, quantity = 20, type = "Type2", category = "Category2" }
         };
         _context.Products.AddRange(products);
         await _context.SaveChangesAsync();
@@ -67,7 +67,7 @@ public class ProductRepositoryTests
     public async Task AddAsync_ShouldAddProduct()
     {
         // Arrange
-        var product = new Product { Id = 3, name = "Product3", price = 30.0, quantity = 30, type = "Type3", category = "Category3" };
+        var product = new Product { id = "3", name = "Product3", price = 30.0, quantity = 30, type = "Type3", category = "Category3" };
 
         // Act
         await _repository.AddAsync(product);
@@ -82,7 +82,7 @@ public class ProductRepositoryTests
     public async Task UpdateAsync_ShouldUpdateProduct()
     {
         // Arrange
-        var product = new Product { Id = 4, name = "Product4", price = 40.0, quantity = 40, type = "Type4", category = "Category4" };
+        var product = new Product { id = "4",  name = "Product4", price = 40.0, quantity = 40, type = "Type4", category = "Category4" };
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
 
@@ -100,7 +100,7 @@ public class ProductRepositoryTests
     public async Task DeleteAsync_ShouldRemoveProduct()
     {
         // Arrange
-        var product = new Product { Id = 5, name = "Product5", price = 50.0, quantity = 50, type = "Type5", category = "Category5" };
+        var product = new Product { id = "5", name = "Product5", price = 50.0, quantity = 50, type = "Type5", category = "Category5" };
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
 

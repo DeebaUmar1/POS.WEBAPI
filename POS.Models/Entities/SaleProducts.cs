@@ -10,8 +10,9 @@ namespace POS.Models.Entities
 {
     public class SaleProducts
     {
-        [Key]
-        public int SalesTransactionId { get; set; }
+        [Required]
+        public string id { get; set; }
+
 
         [Required]
         public DateTime Date { get; set; }

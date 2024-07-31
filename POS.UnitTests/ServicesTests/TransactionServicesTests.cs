@@ -34,7 +34,7 @@ public class TransactionServiceTests
     public async Task AddProductToSaleAsync_ShouldReturnTrue_WhenProductIsValid()
     {
         // Arrange
-        var product = new Product { Id = 1, name = "Product1", price = 10.0, quantity = 10, type = "Type1", category = "Category1" };
+        var product = new Product { id = "1", name = "Product1", price = 10.0, quantity = 10, type = "Type1", category = "Category1" };
         _productRepositoryMock.Setup(repo => repo.GetByIdAsync(1))
             .ReturnsAsync(product);
         _transactionRepositoryMock.Setup(repo => repo.AddAsync(It.IsAny<SaleProducts>()))
@@ -55,15 +55,15 @@ public class TransactionServiceTests
     public async Task AddProductToSaleAsync_ShouldReturnFalse_WhenQuantityIsInvalid()
     {
         // Arrange
-        var productId = 1;
+        var productId = "1";
         var quantity = -5; // Invalid quantity
-        var product = new Product { Id = productId, name = "Product", price = 10.0, quantity = 10, type = "Type", category = "Category" };
+        var product = new Product { id = productId, name = "Product", price = 10.0, quantity = 10, type = "Type", category = "Category" };
 
-        _productRepositoryMock.Setup(repo => repo.GetByIdAsync(productId))
+        _productRepositoryMock.Setup(repo => repo.GetByIdAsync(Convert.ToInt32(productId)))
             .ReturnsAsync(product);
 
         // Act
-        var result = await _transactionService.AddProductToSaleAsync(productId, quantity);
+        var result = await _transactionService.AddProductToSaleAsync(Convert.ToInt32(productId), quantity);
 
         // Assert
         Assert.IsFalse(result);
@@ -74,8 +74,8 @@ public class TransactionServiceTests
     public async Task UpdateProductinSaleAsync_ShouldReturnTrue_WhenUpdatedSuccessfully()
     {
         // Arrange
-        var saleProduct = new SaleProducts { SalesTransactionId = 1, Quantity = 5, ProductId = 1, ProductName = "Product1", ProductPrice = 10.0 };
-        var product = new Product { Id = 1, name = "Product1", price = 10.0, quantity = 10, type = "Type1", category = "Category1" };
+        var saleProduct = new SaleProducts { id = "1", Quantity = 5, ProductId = 1, ProductName = "Product1", ProductPrice = 10.0 };
+        var product = new Product { id = "1", name = "Product1", price = 10.0, quantity = 10, type = "Type1", category = "Category1" };
 
         _transactionRepositoryMock.Setup(repo => repo.GetByIdAsync(1))
             .ReturnsAsync(saleProduct);

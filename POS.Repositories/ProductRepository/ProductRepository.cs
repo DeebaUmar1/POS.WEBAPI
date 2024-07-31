@@ -1,12 +1,12 @@
 ﻿using POS.Data;
 using POS.Models.Entities;
-using POS.Repositories.ProductRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using POS.Repositories.ProductRepository;
 
 namespace POS.Repositories.Repository
 {
@@ -21,7 +21,7 @@ namespace POS.Repositories.Repository
 
         public async Task<Product> GetByIdAsync(int id)
         {
-            return await _context.Products.FindAsync(id);
+            return await _context.Products.FindAsync(id.ToString());
         }
 
         public async Task<List<Product>> GetAllAsync()
@@ -43,7 +43,7 @@ namespace POS.Repositories.Repository
 
         public async Task DeleteAsync(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products.FindAsync(id.ToString());
             if (product != null)
             {
                 _context.Products.Remove(product);
@@ -60,7 +60,7 @@ namespace POS.Repositories.Repository
                 await _context.Products.AddRangeAsync(
                     new Product
                     {
-                        Id = 1,
+                        id = "1",
                         name = "Laptop",
                         price = 899.99,
                         quantity = 10,
@@ -69,7 +69,7 @@ namespace POS.Repositories.Repository
                     },
                     new Product
                     {
-                        Id = 2,
+                        id = "2",
                         name = "Mouse",
                         price = 29.99,
                         quantity = 50,
@@ -78,7 +78,7 @@ namespace POS.Repositories.Repository
                     },
                     new Product
                     {
-                        Id = 3,
+                        id = "3",
                         name = "Keyboard",
                         price = 49.99,
                         quantity = 25,

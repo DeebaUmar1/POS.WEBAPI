@@ -31,6 +31,7 @@ namespace POS.WebApi.Controllers
          
         }
 
+        // To store some already created products
         [HttpPost("SeedProducts")]
         public async Task<IActionResult> SeedProducts()
         {
@@ -47,6 +48,31 @@ namespace POS.WebApi.Controllers
             }
         }
 
+        //View a product by its id
+        [HttpGet("GetByID/{id}")]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            try
+            {
+                var product = await _productService.GetProductByIdAsync(id);
+                if (product == null)
+                {
+                    return NotFound("Product not found!");
+                }
+                var prod = _mapper.Map<ProductDTO>(product);
+                return Ok(prod);
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError($"Error Message: {ex.Message}");
+                throw; // Rethrow to be caught by middleware
+            }
+            
+           
+        }
+
+        //Adding a product
         [HttpPost("AddProduct")]
         public async Task<IActionResult> AddProduct(ProductDTO product)
         {
@@ -57,12 +83,13 @@ namespace POS.WebApi.Controllers
 
             try
             {
+                //Mapping the ProductDTO to product entity
                 var prod = _mapper.Map<Product>(product);
                 if (!ModelState.IsValid)
                 {
                     throw new ValidationException("Invalid product data.");
                 }
-
+               
                 bool added = await _productService.AddProductAsync(prod);
                 if (added)
                 {
@@ -82,22 +109,25 @@ namespace POS.WebApi.Controllers
             }
         }
 
+        //View all products
         [HttpGet("ViewProducts")]
         public async Task<IActionResult> ViewProducts()
         {
             try
             {
                 var products = await _productService.GetProductsAsync();
-                var prod = _mapper.Map<ProductDTO>(products);
+                var prod = _mapper.Map<IEnumerable<ProductDTO>>(products);
                 return Ok(prod);
             }
             catch (Exception ex)
             {
+
                 _logger.LogError($"Error Message: {ex.Message}");
                 throw; // Rethrow to be caught by middleware
             }
         }
 
+        //Removing a product by its id
         [HttpDelete("RemoveProduct/{id}")]
         public async Task<IActionResult> RemoveProduct(int id)
         {
@@ -111,6 +141,8 @@ namespace POS.WebApi.Controllers
                 }
                 else
                 {
+
+                    return NotFound("Product not found");
                     throw new NotFoundException("Product not found.");
                 }
             }
@@ -121,6 +153,8 @@ namespace POS.WebApi.Controllers
             }
         }
 
+        //Update a product 
+        //Mention ID of the product you want to update
         [HttpPut("UpdateProduct")]
         public async Task<IActionResult> UpdateProduct(int id, UpdateProductDTO product)
         {
@@ -141,6 +175,8 @@ namespace POS.WebApi.Controllers
                 }
                 else
                 {
+
+                    return NotFound("Product not found");
                     throw new NotFoundException("Product not found.");
                 }
             }
@@ -151,8 +187,10 @@ namespace POS.WebApi.Controllers
             }
         }
 
-        [HttpPut("UpdateStock/{id}/{quantity}")]
-        public async Task<IActionResult> UpdateStock(int id, [FromQuery] string option, int quantity)
+        //In case admin wants to update exisiting product (only their quantity)
+        //Mention the option (increment/decrement) in URL
+        [HttpPut("UpdateStock/{id}/{option}/{quantity}")]
+        public async Task<IActionResult> UpdateStock(int id, string option, int quantity)
         {
             try
             {
@@ -165,7 +203,9 @@ namespace POS.WebApi.Controllers
                     }
                     else
                     {
+                        return NotFound("Product not found");
                         throw new Exception("Stock update failed.");
+                        
                     }
                 }
                 else if (option == "decrement")
@@ -177,11 +217,15 @@ namespace POS.WebApi.Controllers
                     }
                     else
                     {
+
+                        return NotFound("Product not found");
                         throw new NotFoundException("Product not found for stock update.");
                     }
                 }
                 else
                 {
+
+                    return BadRequest("Invalid option (select increment/decrement only)");
                     throw new ValidationException("Invalid option");
                 }
             }

@@ -29,7 +29,7 @@ public class TransactionRepositoryTests
     public async Task GetByIdAsync_ShouldReturnSaleProduct_WhenProductExists()
     {
         // Arrange
-        var saleProduct = new SaleProducts { SalesTransactionId = 1, Quantity = 5, ProductId = 1, ProductName = "Product1", ProductPrice = 10.0 };
+        var saleProduct = new SaleProducts { id = "1", Quantity = 5, ProductId = 1, ProductName = "Product1", ProductPrice = 10.0 };
         _context.SaleProducts.Add(saleProduct);
         await _context.SaveChangesAsync();
 
@@ -47,8 +47,8 @@ public class TransactionRepositoryTests
         // Arrange
         var saleProducts = new List<SaleProducts>
         {
-            new SaleProducts { SalesTransactionId = 1, Quantity = 2, ProductId = 1, ProductName = "Product1", ProductPrice = 10.0 },
-            new SaleProducts { SalesTransactionId = 2, Quantity = 3, ProductId = 2, ProductName = "Product2", ProductPrice = 20.0 }
+            new SaleProducts { id = "1", Quantity = 2, ProductId = 1, ProductName = "Product1", ProductPrice = 10.0 },
+            new SaleProducts { id = "2", Quantity = 3, ProductId = 2, ProductName = "Product2", ProductPrice = 20.0 }
         };
         _context.SaleProducts.AddRange(saleProducts);
         await _context.SaveChangesAsync();
@@ -66,7 +66,7 @@ public class TransactionRepositoryTests
     public async Task AddAsync_ShouldAddSaleProduct()
     {
         // Arrange
-        var saleProduct = new SaleProducts { SalesTransactionId = 3, Quantity = 4, ProductId = 3, ProductName = "Product3", ProductPrice = 30.0 };
+        var saleProduct = new SaleProducts { id = "3", Quantity = 4, ProductId = 3, ProductName = "Product3", ProductPrice = 30.0 };
 
         // Act
         await _repository.AddAsync(saleProduct);
@@ -81,7 +81,7 @@ public class TransactionRepositoryTests
     public async Task UpdateAsync_ShouldUpdateSaleProduct()
     {
         // Arrange
-        var saleProduct = new SaleProducts { SalesTransactionId = 4, Quantity = 5, ProductId = 4, ProductName = "Product4", ProductPrice = 40.0 };
+        var saleProduct = new SaleProducts { id = "4", Quantity = 5, ProductId = 4, ProductName = "Product4", ProductPrice = 40.0 };
         _context.SaleProducts.Add(saleProduct);
         await _context.SaveChangesAsync();
 
@@ -99,7 +99,7 @@ public class TransactionRepositoryTests
     public async Task DeleteAsync_ShouldRemoveSaleProduct()
     {
         // Arrange
-        var saleProduct = new SaleProducts { SalesTransactionId = 5, Quantity = 6, ProductId = 5, ProductName = "Product5", ProductPrice = 50.0 };
+        var saleProduct = new SaleProducts { id = "5", Quantity = 6, ProductId = 5, ProductName = "Product5", ProductPrice = 50.0 };
         _context.SaleProducts.Add(saleProduct);
         await _context.SaveChangesAsync();
 
@@ -117,8 +117,8 @@ public class TransactionRepositoryTests
         // Arrange
         var saleProducts = new List<SaleProducts>
         {
-            new SaleProducts { SalesTransactionId = 6, Quantity = 7, ProductId = 6, ProductName = "Product6", ProductPrice = 60.0 },
-            new SaleProducts { SalesTransactionId = 7, Quantity = 8, ProductId = 7, ProductName = "Product7", ProductPrice = 70.0 }
+            new SaleProducts { id = "6", Quantity = 7, ProductId = 6, ProductName = "Product6", ProductPrice = 60.0 },
+            new SaleProducts { id = "7", Quantity = 8, ProductId = 7, ProductName = "Product7", ProductPrice = 70.0 }
         };
         _context.SaleProducts.AddRange(saleProducts);
         await _context.SaveChangesAsync();

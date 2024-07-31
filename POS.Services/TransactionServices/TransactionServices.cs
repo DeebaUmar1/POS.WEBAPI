@@ -38,7 +38,7 @@ namespace POS.Services.TransactionServices
                     ProductPrice = product.price
                 };
 
-                product.quantity -= quantity;
+                await productService.UpdateStockAsync(Convert.ToInt32(product.id), quantity, false);
                 await transactionRepository.AddAsync(sale);
                 return true;
             }
@@ -61,12 +61,12 @@ namespace POS.Services.TransactionServices
         public async Task<bool> UpdateProductinSaleAsync(int productId, int quantity)
         {
 
-            var sale = GetProductByIdAsync(productId);
-            var saleProductToUpdate = sale.Result;
+            var saleProductToUpdate = await GetProductByIdAsync(productId);
             if (saleProductToUpdate != null)
             {
-                var prod = productService.GetProductByIdAsync(productId);
-                var originalProduct = prod.Result;
+                var originalProduct = await productService.GetProductByIdAsync(saleProductToUpdate.ProductId);
+             
+
                 if (originalProduct != null)
                 {
                     int originalSaleQuantity = saleProductToUpdate.Quantity;
@@ -76,17 +76,19 @@ namespace POS.Services.TransactionServices
                     {
                         return false;
                     }
-                    originalProduct.quantity += originalSaleQuantity; // Restore the original quantity
-                    saleProductToUpdate.Quantity = quantity;
+                   // originalProduct.quantity += originalSaleQuantity;
+                    await productService.UpdateStockAsync(Convert.ToInt32(originalProduct.id), originalSaleQuantity, true);// Restore the original quantity
+                    bool result = await UpdateQuantity(productId, quantity);
 
                     if (quantity == 0)
                     {
-                        await RemoveProductFromSaleAsync(saleProductToUpdate.SalesTransactionId);
+                        await RemoveProductFromSaleAsync(Convert.ToInt32(saleProductToUpdate.id));
                     }
                     else
                     {
-                        originalProduct.quantity -= quantity;
-                        await productService.UpdateProductAsync(originalProduct.Id, originalProduct);
+                        await productService.UpdateStockAsync(Convert.ToInt32(originalProduct.id), quantity, false);
+                        /*originalProduct.quantity -= quantity;
+                        await productService.UpdateProductAsync(Convert.ToInt32(originalProduct.id), originalProduct);*/
                     }
 
                     return true;
@@ -103,6 +105,20 @@ namespace POS.Services.TransactionServices
                 return false;
 
             }
+        }
+
+        public async Task<bool> UpdateQuantity(int id,  int quantity)
+        {
+            var saleProduct = await GetProductByIdAsync(id);
+            if (saleProduct != null)
+            {
+                saleProduct.Quantity = quantity;
+                await transactionRepository.UpdateAsync(saleProduct);
+                return true;
+            }
+            else
+                { return false; }
+
         }
         public async Task<bool> RemoveProductFromSaleAsync(int id)
         {
@@ -179,7 +195,8 @@ namespace POS.Services.TransactionServices
                 totalReceipt.Add(new FinalReceipt
                 {
                     Receipt = receipt.ToList(),
-                    TotalAmount = totalAmount
+                    TotalAmount = totalAmount,
+                    date = DateTime.Now
                 });
 
                 transactionRepository.RemoveAll(saleProducts);
@@ -188,56 +205,5 @@ namespace POS.Services.TransactionServices
 
             return totalReceipt;
         }
-    /*    public async Task<List<FinalReceipt>> GenerateReceipt()
-        {
-            var saleProducts = await transactionRepository.GetAllAsync();
-            var receipt = new List<Receipt>();
-            var totalReceipt = new List<FinalReceipt>();
-
-            if (saleProducts.Any())
-            {
-                Console.WriteLine("Receipt:");
-                Console.WriteLine(new string('-', 50));
-                Console.WriteLine($"{"Quantity",-10} {"Product",-20} {"Price",-10} {"Total",-10}");
-                Console.WriteLine(new string('-', 50));
-
-                foreach (var sale in saleProducts)
-                {
-                    string totalPrice = (sale.Quantity * sale.ProductPrice).ToString("C");
-                    receipt.Add(new Receipt
-                    {
-                        Quantity = sale.Quantity.ToString(),
-                        Product = sale.ProductName,
-                        Price = sale.ProductPrice.ToString("C"),
-                        Total = totalPrice
-                    });
-                    Console.WriteLine($"{sale.Quantity,-10} {sale.ProductName,-20} {sale.ProductPrice,-10:C} {totalPrice,-10}");
-                }
-                var total = CalculateTotalAmount();
-                double t = total.Result;
-                string totalAmount = Convert.ToString(t);
-                Console.WriteLine(new string('-', 50));
-                Console.WriteLine($"{"Total Amount:",-30} {totalAmount}");
-                totalReceipt.Add(new FinalReceipt
-                {
-                    Receipt = receipt,
-                    TotalAmount = totalAmount
-                });
-
-                Console.WriteLine(new string('-', 50));
-
-                // Remove all sale products
-                transactionRepository.RemoveAll(saleProducts);
-
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey();
-            }
-            else
-            {
-                Console.WriteLine("Please add products to sale before generating receipt.");
-            }
-
-            return totalReceipt;
-        }*/
     }
 }

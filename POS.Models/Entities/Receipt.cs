@@ -33,6 +33,9 @@ namespace POS.Models.Entities
         [Required]
         [StringLength(10)] // Assuming a reasonable length for TotalAmount
         public string TotalAmount { get; set; }
+
+        [Required]
+        public DateTime date { get; set; }
     }
 
 

@@ -31,19 +31,18 @@ namespace POS.Repositories.UserRepository
             }
             //return await context.Users.ToListAsync() ?? new List<User>(); 
         }
-        public async Task AddAsync(User user)
+        public async Task<bool> AddAsync(User user)
         {
-            var users = GetAllAsync().Result;
-            if (users == null)
+            var users = await GetAllAsync();
+            
+            if (users == null || !users.Any())
             {
-                user.Id = 1;
+                user.id = "1";
             }
-            else
-            { 
-                user.Id = context.Users.Max(u => u.Id) + 1;
-            }
+
             context.Users.Add(user);
             await context.SaveChangesAsync();
+            return true;
         }
         public async Task<User> LogInAsync(string name, string password)
         {
@@ -79,7 +78,7 @@ namespace POS.Repositories.UserRepository
         public async Task<User> GetUserByIdAsync(int id)
         {
             
-            var user =     await context.Users.FindAsync(id);
+            var user =  await context.Users.FindAsync(id);
             if(user == null)
             {
                 return null;
@@ -97,9 +96,9 @@ namespace POS.Repositories.UserRepository
             if (!context.Users.Any())
             {
                 await context.Users.AddRangeAsync(
-                    new User { Id = 1, name = "admin", email = "email", password = Password.EncodePasswordToBase64("adminpass"), role = UserRole.Admin },
-                    new User { Id = 2, name = "cashier", email = "email", password = Password.EncodePasswordToBase64("cashierpass"), role = UserRole.Cashier },
-                    new User { Id = 3, name = "manager", email = "email", password = Password.EncodePasswordToBase64("managerpass"), role = UserRole.Admin }
+                    new User { id = "1", name = "admin", email = "email", password = Password.EncodePasswordToBase64("adminpass"), role = UserRole.Admin },
+                    new User { id = "2", name = "cashier", email = "email", password = Password.EncodePasswordToBase64("cashierpass"), role = UserRole.Cashier },
+                    new User { id = "3", name = "manager", email = "email", password = Password.EncodePasswordToBase64("managerpass"), role = UserRole.Admin }
                 );
                 await context.SaveChangesAsync();
             }

@@ -21,8 +21,7 @@ namespace POS.WebApi.Controllers
     {
         private readonly ILogger<AuthenticationController> _logger;
         private readonly IMapper _mapper;
-        private readonly IUserService _userServices;
-     
+        private readonly IUserService _userServices;   
         private readonly IConfiguration _configuration;
 
         public AuthenticationController(IConfiguration _configuration, IUserService userServices, IMapper mapper, ILogger<AuthenticationController> logger)
@@ -33,29 +32,10 @@ namespace POS.WebApi.Controllers
             _mapper = mapper;
             _logger = logger;
         }
-/*
-        [HttpPost("token")]
-        public IActionResult GetToken([FromBody] LoginDTO login)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid Data");
-            }
 
-            try
-            {
-                
-                var token = _tokenService.GenerateToken(login);
-                return Ok(new { token });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error while generating token: {ex.Message}");
-                throw new Exception("Error generating token");
-            }
-        }
-*/
-        [Authorize]
+  
+        //To store users
+       // [Authorize]
         [HttpPost("SeedUsers")]
         public async Task<IActionResult> SeedUsers()
         {
@@ -71,7 +51,25 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
+        //To get a user by id
+        [HttpPost("GetUserByID")]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            try
+            {
+                var user = await _userServices.GetUserById(id);
+                _logger.LogInformation("Users added successfully!");
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error while seeding users: {ex.Message}");
+                throw; // Rethrow to be caught by middleware
+            }
+        }
 
+        //Login a user
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Login([FromQuery] string username, [FromQuery] string password)
         {
@@ -83,12 +81,14 @@ namespace POS.WebApi.Controllers
             try
             {
                 var user = await _userServices.Login(username, password);
+                // this will return if name/password is incorrect
                 if (user == null)
                 {
                     throw new UnauthorizedAccessEx("Invalid credentials");
                 }
 
                 var loggedInUser = _mapper.Map<LoginDTO>(user);
+                //To authorize users based on their roles
                 var authClaims = new List<Claim>
                 {
                    new Claim(ClaimTypes.Name, loggedInUser.name),
@@ -98,10 +98,8 @@ namespace POS.WebApi.Controllers
            
                 string token = GenerateToken(authClaims);
                 _logger.LogInformation("User logged in!");
-                return Ok(token);
-            
-                
-               // return Ok(GetToken(loggedInUser));
+                return Ok(new { message = token });
+      
             }
             catch (UnauthorizedAccessEx ex)
             {
@@ -114,6 +112,8 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
+
+
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO user)
         {
@@ -124,6 +124,7 @@ namespace POS.WebApi.Controllers
 
             try
             {
+                //Check if the model is invalid
                 if (string.IsNullOrEmpty(user.name) || string.Equals(user.name, "string"))
                 {
                     throw new ValidationException("Invalid Name");
@@ -133,17 +134,18 @@ namespace POS.WebApi.Controllers
                 {
                     throw new ValidationException("Invalid Email");
                 }
-
+                //Validate password
                 Regex validatePassword = Password.ValidatePassword();
                 if (string.IsNullOrEmpty(user.password) || !validatePassword.IsMatch(user.password))
                 {
                     throw new ValidationException("Invalid Password (must contain numbers, at least one capital letter)");
                 }
-
+                //Encoding the password
                 user.password = Password.EncodePasswordToBase64(user.password);
+                //Default Role
                 user.role = UserRole.Cashier;
 
-
+                //Mapping LoginDTO to User entity
                 var userEntity = _mapper.Map<User>(user);
 
                 if (await _userServices.RegisterUserAsync(userEntity))
@@ -167,6 +169,7 @@ namespace POS.WebApi.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
         [Authorize(Roles = "Admin")]
         [HttpPost("setrole")]
         public async Task<IActionResult> SetRole([FromBody] SetRoleModelDTO model)
@@ -178,6 +181,7 @@ namespace POS.WebApi.Controllers
 
             try
             {
+                //in case of Basic Authentication this code will be uncommented
                /* var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
                 {
@@ -189,6 +193,7 @@ namespace POS.WebApi.Controllers
                 {
                     throw new UnauthorizedAccessEx("Only admins can update roles");
                 }*/
+                //Check user input
                 UserRole role;
                 if (model.role.ToLower() == "admin")
                 {
@@ -242,10 +247,8 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
-
-       
-
-
+        
+        // This code will generate token for individual users based on their roles
         private string GenerateToken(IEnumerable<Claim> claims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));

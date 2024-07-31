@@ -7,6 +7,7 @@ using static POS.Middlewares.Middlewares.CustomExceptions;
 
 namespace POS.Middlewares.Middlewares
 {
+    //Handles exceptions
     public class CustomExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
@@ -78,8 +79,7 @@ namespace POS.Middlewares.Middlewares
                 };
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response));
             }
-
-            // Ensure this part is correctly placed to avoid modifying response after it's started
+            //In case of forbidden exception ( User is not admin)
             if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
             {
                 if (!context.Response.HasStarted)
@@ -87,6 +87,7 @@ namespace POS.Middlewares.Middlewares
                     await context.Response.WriteAsync("You do not have permission to access this resource.");
                 }
             }
+            // in case user has not logged in.
            else if (!context.User.Identity.IsAuthenticated)
             {
                 if (!context.Response.HasStarted)

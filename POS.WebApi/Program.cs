@@ -1,10 +1,8 @@
-
 using log4net;
 using log4net.Config;
 using Microsoft.EntityFrameworkCore;
 using PointOfSaleWebAPIs.AutoMapper;
 using POS.Data;
-using POS.Repositories.ProductRepository;
 using POS.Repositories.Repository;
 using POS.Services.ProductServices;
 using System.Reflection;
@@ -20,10 +18,14 @@ using POS.Services;
 using POS.Repositories.TransactionRepository;
 using POS.Services.TransactionServices;
 using Microsoft.Extensions.DependencyInjection;
-
 using System.Text;
 using POS.Middlewares.Middlewares;
 using POS.Models.Entities;
+using Microsoft.Azure.Cosmos;
+using POS.Repositories.ProductRepository;
+using Microsoft.Extensions.Hosting;
+using POS.Repositories.PurchaseProductRepository;
+using POS.Services.PurchaseProductServices;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -45,7 +47,7 @@ builder.Services.AddAutoMapper(typeof(AutoMapperConfig)); // Ensure you specify 
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
+/*
 builder.Services.AddDbContext<POSDbContext>(options =>
     options.UseInMemoryDatabase("POSDatabase"));
 
@@ -62,7 +64,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<TransactionService>();
-
+*/
 // Adding Authentication  
 builder.Services.AddAuthentication(options =>
 {
@@ -72,46 +74,92 @@ builder.Services.AddAuthentication(options =>
 })
 
 // Adding Jwt Bearer  
-            .AddJwtBearer(options =>
-            {
-                options.SaveToken = true;
-                options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidAudience = builder.Configuration["JWT:ValidAudience"],
-                    ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-                    ClockSkew = TimeSpan.Zero,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
-                };
-            });
-/*Configure JWT authentication
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = jwtSettings.GetValue<string>("Key") ?? throw new ArgumentNullException(nameof(jwtSettings));
-var issuer = jwtSettings.GetValue<string>("Issuer") ?? throw new ArgumentNullException(nameof(jwtSettings));
-var audience = jwtSettings.GetValue<string>("Audience") ?? throw new ArgumentNullException(nameof(jwtSettings));
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false;
     options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidateIssuer = true,
         ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = issuer,
-        ValidAudience = audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        ClockSkew = TimeSpan.Zero,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
     };
-});*/
+});
+
+
+
+// Configure CosmosClient
+var cosmosDbSettings = builder.Configuration.GetSection("CosmosDb");
+builder.Services.AddSingleton<CosmosClient>(sp =>
+{
+    var connectionString = cosmosDbSettings["COSMOS_CONNECTION_STRING"];
+    return new CosmosClient(connectionString);
+});
+
+// Register CosmosDbSetup with CosmosClient
+builder.Services.AddSingleton<CosmosDbSetup>(sp =>
+{
+    var cosmosClient = sp.GetRequiredService<CosmosClient>();
+    return new CosmosDbSetup(cosmosClient);
+});
+
+
+// Register ProductCosmosRepository with correct parameters
+builder.Services.AddScoped<IProductRepository>(serviceProvider =>
+{
+    var client = serviceProvider.GetRequiredService<CosmosClient>();
+ 
+    return new ProductCosmosRepository(client);
+});
+
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ProductService>();
+
+
+
+// Register UserCosmosRepository with correct parameters
+builder.Services.AddScoped<IUserRepository>(serviceProvider =>
+{
+    var client = serviceProvider.GetRequiredService<CosmosClient>();
+   
+    return new UserCosmosRepository(client);
+});
+
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<UserService>();
+
+
+
+// Register TransactionCosmosRepository with correct parameters
+builder.Services.AddScoped<ITransactionRepository>(serviceProvider =>
+{
+    var client = serviceProvider.GetRequiredService<CosmosClient>();
+
+    return new TransactionCosmosRepository(client);
+});
+
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<TransactionService>();
+
+
+
+
+// Register PurchaseProductRepository with correct parameters
+builder.Services.AddScoped<IPurchaseProductRepository>(serviceProvider =>
+{
+    var client = serviceProvider.GetRequiredService<CosmosClient>();
+
+    return new PurchaseProductCosmosRepository(client);
+});
+
+builder.Services.AddScoped<IPurchaseProductServices, PurchaseProductServices>();
+builder.Services.AddScoped<PurchaseProductServices>();
+
+
+
 // Add authorization
 builder.Services.AddAuthorization(options =>
 {
@@ -124,11 +172,19 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Resolve the CosmosDbSetup service and call the setup method
 using (var scope = app.Services.CreateScope())
+{
+    var cosmosDbSetup = scope.ServiceProvider.GetRequiredService<CosmosDbSetup>();
+    await cosmosDbSetup.CreateDatabaseAndContainerAsync();
+}
+
+
+/*using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<POSDbContext>();
     POSDbContext.SeedData(dbContext);
-}
+}*/
 
 // Ensure that the BasicAuthMiddleware is added before BearerTokenMiddleware
 //app.UseMiddleware<BasicAuthMiddleware>();

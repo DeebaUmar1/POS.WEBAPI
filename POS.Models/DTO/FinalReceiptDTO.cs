@@ -10,6 +10,9 @@ namespace POS.Models.DTO
         [Required]
         [StringLength(10)] 
         public string TotalAmount { get; set; }
+
+        [Required]
+        public DateTime date { get; set; }
     }
 
 }

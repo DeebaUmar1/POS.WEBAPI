@@ -20,13 +20,14 @@ namespace POS.Data
         public DbSet<SaleProducts> SaleProducts { get; set; }
         public DbSet<Product> Products { get; set; }
 
-       
+        public DbSet<PurchaseProducts> PurchaseProducts { get; set; }
+
         public static void SeedData(POSDbContext context)
         {
             if (!context.Users.Any())
             {
                 context.Users.AddRange(
-                    new User { Id = 1, name = "admin", email = "email", password = Password.EncodePasswordToBase64("adminpass"), role = UserRole.Admin }
+                    new User { id = "1", name = "admin", email = "email", password = Password.EncodePasswordToBase64("adminpass"), role = UserRole.Admin }
 
                 );
                 context.SaveChanges();

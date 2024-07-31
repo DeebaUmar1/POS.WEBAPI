@@ -12,7 +12,7 @@ namespace POS.Repositories.UserRepository
     public interface IUserRepository
     {
         Task<List<User>> GetAllAsync();
-        Task AddAsync(User user);
+        Task<bool> AddAsync(User user);
         Task<User> LogInAsync(string name, string password);
 
         Task SeedUsersAsync();

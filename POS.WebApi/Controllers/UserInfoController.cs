@@ -9,7 +9,7 @@ namespace POS.WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-  
+  // This controller will work in case of Basic authentication
     public class UserInfoController : ControllerBase
     {
         // Function to get the current user's information

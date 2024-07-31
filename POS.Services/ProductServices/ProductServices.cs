@@ -34,7 +34,7 @@ namespace POS.Services.ProductServices
                 {
                     if (product.quantity != 0)
                     {
-                        Console.WriteLine($"{product.Id,-5} {product.name,-20} {product.price,-10:C} {product.quantity,-10} {product.type,-15} {product.category,-15}");
+                        Console.WriteLine($"{product.id,-5} {product.name,-20} {product.price,-10:C} {product.quantity,-10} {product.type,-15} {product.category,-15}");
                     }
                 }
 
