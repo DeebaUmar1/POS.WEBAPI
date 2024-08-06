@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Tokens;
 using POS.Models.DTO;
 using POS.Models.Entities;
@@ -23,19 +25,20 @@ namespace POS.WebApi.Controllers
         private readonly IMapper _mapper;
         private readonly IUserService _userServices;   
         private readonly IConfiguration _configuration;
-
-        public AuthenticationController(IConfiguration _configuration, IUserService userServices, IMapper mapper, ILogger<AuthenticationController> logger)
+        
+        public AuthenticationController( IConfiguration _configuration, IUserService userServices, IMapper mapper, ILogger<AuthenticationController> logger)
         {
             this._configuration = _configuration;
             _userServices = userServices;
-          
+        
             _mapper = mapper;
             _logger = logger;
         }
 
-  
+       
         //To store users
-       // [Authorize]
+        
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         [HttpPost("SeedUsers")]
         public async Task<IActionResult> SeedUsers()
         {
@@ -67,6 +70,7 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
+       
 
         //Login a user
         [AllowAnonymous]
@@ -104,7 +108,7 @@ namespace POS.WebApi.Controllers
             catch (UnauthorizedAccessEx ex)
             {
                 _logger.LogError($"Error during login: {ex.Message}");
-                return Unauthorized(ex.Message);
+                throw new UnauthorizedAccessEx(ex.Message);
             }
             catch (Exception ex)
             {
@@ -112,7 +116,6 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
-
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO user)
@@ -170,7 +173,7 @@ namespace POS.WebApi.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         [HttpPost("setrole")]
         public async Task<IActionResult> SetRole([FromBody] SetRoleModelDTO model)
         {
@@ -218,12 +221,13 @@ namespace POS.WebApi.Controllers
             catch (UnauthorizedAccessEx ex)
             {
                 _logger.LogError($"Authorization error: {ex.Message}");
-                return Unauthorized(ex.Message);
+                throw new UnauthorizedAccessEx(ex.Message);
             }
             catch (NotFoundException ex)
             {
                 _logger.LogError($"Not found error: {ex.Message}");
-                return NotFound(ex.Message);
+                throw new NotFoundException(ex.Message);
+
             }
             catch (Exception ex)
             {
@@ -232,14 +236,15 @@ namespace POS.WebApi.Controllers
             }
         }
 
-        [Authorize]
+        [RequiredScope ("POS.Read")]
         [HttpGet("GetUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
             try
             {
                 var users = await _userServices.GetUsersAsync();
-                return Ok(users);
+                var usersDTO = _mapper.Map<IEnumerable<UserDTO>>(users);
+                return Ok(usersDTO);
             }
             catch (Exception ex)
             {

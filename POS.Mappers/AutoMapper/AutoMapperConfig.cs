@@ -28,7 +28,9 @@ namespace PointOfSaleWebAPIs.AutoMapper
             CreateMap<User, UserRoleDTO>()
             .ForMember(dest => dest.role, opt=>opt.MapFrom(src => src.role));
            
-            CreateMap<User, RegisterDTO>(); // If
+            CreateMap<User, UserDTO>()
+                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))          
+            .ForMember(dest => dest.role, opt => opt.MapFrom(src => src.role.ToString()));
 
             CreateMap<ProductDTO, Product>()
             .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name))
@@ -38,6 +40,7 @@ namespace PointOfSaleWebAPIs.AutoMapper
             .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.Type));
 
             CreateMap<Product, ProductDTO>()
+                .ForMember(dest => dest.productID, opt => opt.MapFrom(src => src.id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
              .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.price))
              .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.category))

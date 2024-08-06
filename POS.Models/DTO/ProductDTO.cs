@@ -4,6 +4,7 @@ namespace POS.Models.DTO
 {
     public class ProductDTO
     {
+        public string productID { get; set; }
         [Required]
         [StringLength(100)] // Assuming a maximum length for the name
         public string Name { get; set; }

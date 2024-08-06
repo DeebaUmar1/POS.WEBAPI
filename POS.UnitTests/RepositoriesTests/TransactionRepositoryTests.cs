@@ -66,13 +66,13 @@ public class TransactionRepositoryTests
     public async Task AddAsync_ShouldAddSaleProduct()
     {
         // Arrange
-        var saleProduct = new SaleProducts { id = "3", Quantity = 4, ProductId = 3, ProductName = "Product3", ProductPrice = 30.0 };
+        var saleProduct = new SaleProducts { Quantity = 4, ProductId = 3, ProductName = "Product3", ProductPrice = 30.0 };
 
         // Act
         await _repository.AddAsync(saleProduct);
 
         // Assert
-        var addedProduct = await _repository.GetByIdAsync(3);
+        var addedProduct = await _repository.GetByIdAsync(Convert.ToInt32(saleProduct.id));
         Assert.IsNotNull(addedProduct);
         Assert.AreEqual(saleProduct.ProductName, addedProduct.ProductName);
     }

@@ -54,8 +54,8 @@ namespace POS.Tests
         public async Task AddProduct_ShouldReturnOk_WhenProductAddedSuccessfully()
         {
             // Arrange
-            var productDto = new ProductDTO { /* set properties */ };
-            var product = new Product { /* set properties */ };
+            var productDto = new ProductDTO { Name = "Laptop", Category = "Computers", Price = 100, Quantity = 10, productID ="10"  };
+            var product = new Product();
 
             _mapperMock.Setup(mapper => mapper.Map<Product>(productDto)).Returns(product);
             _mockProductService.Setup(service => service.AddProductAsync(product)).ReturnsAsync(true);
@@ -72,19 +72,19 @@ namespace POS.Tests
         public async Task ViewProducts_ShouldReturnOk_WithProductList()
         {
             // Arrange
-            var products = new List<Product> { /* list of products */ };
-            { /* list of product DTOs */ };
+            var products = new List<Product>();
+            var productsDto = new List<ProductDTO> ();
 
             _mockProductService.Setup(service => service.GetProductsAsync()).ReturnsAsync(products);
-            var productDtos = new ProductDTO();
-            _mapperMock.Setup(mapper => mapper.Map<ProductDTO>(products)).Returns(productDtos);
+          
+            _mapperMock.Setup(mapper => mapper.Map<List<ProductDTO>>(products)).Returns(productsDto);
 
             // Act
             var result = await _controller.ViewProducts();
 
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result);
-            Assert.AreEqual(productDtos, ((OkObjectResult)result).Value);
+            Assert.AreEqual(productsDto, ((OkObjectResult)result).Value);
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace POS.Tests
             // Arrange
             int productId = 1;
             var updateProductDto = new UpdateProductDTO { /* set properties */ };
-            var product = new Product { /* set properties */ };
+            var product = new Product ();
 
             _mapperMock.Setup(mapper => mapper.Map<Product>(updateProductDto)).Returns(product);
             _mockProductService.Setup(service => service.UpdateProductAsync(productId, product)).ReturnsAsync(true);

@@ -3,10 +3,13 @@
     "apis1": {
       "type": "apis"
     },
+    "secrets1": {
+      "type": "secrets",
+      "connectionId": "VaultUri"
+    },
     "cosmosdb1": {
       "type": "cosmosdb",
-      "connectionId": "COSMOS_DB_CONNECTION_STRING",
-      "dynamicId": null
+      "connectionId": "COSMOSCONNECTIONSTRING"
     }
   }
 }

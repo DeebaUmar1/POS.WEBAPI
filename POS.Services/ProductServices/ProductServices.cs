@@ -141,16 +141,20 @@ namespace POS.Services.ProductServices
             var product = await _repository.GetByIdAsync(productId);
             if (product != null)
             {
+                if (quantity == product.quantity)
+                {
+                    await _repository.DeleteAsync(productId);
+                    return true;
+                }
+                
                 if (isIncrement)
                     product.quantity += quantity;
                 else
                     product.quantity -= quantity;
 
-                // Ensure stock is not negative
-                if (product.quantity < 0)
-                    product.quantity = 0;
 
                 await _repository.UpdateAsync(product);
+                
                 return true;
             }
             else

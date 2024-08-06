@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,8 @@ namespace POS.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PurchaseController : ControllerBase
     {
         private readonly IPurchaseProductServices purchaseProduct;
@@ -26,7 +28,7 @@ namespace POS.WebApi.Controllers
             _mapper = mapper;
             _logger = logger;
         }
-
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         //Add one of the products from Purchase Products
 
         [HttpPost("AddProductToPurchase/{id}/{quantity}")]
@@ -56,7 +58,7 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
-
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         //Generate the reciept of your products.
         //Generating the receipt will remove all the sale products.
         [HttpGet("GenerateReceipt")]
@@ -87,7 +89,7 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
-
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         //In case you want to see total amount before generating receipt.
         //This will tell the total amount only.
         [HttpGet("CalculateTotalAmount")]
@@ -117,7 +119,7 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
-
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         //Before purchasing products, you can view the available products given by the supplier.
         [HttpGet("ViewPurchaseProducts")]
         public async Task<IActionResult> ViewProducts()

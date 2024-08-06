@@ -8,10 +8,12 @@ using POS.Services.UserServices;
 using static POS.Middlewares.Middlewares.CustomExceptions;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.Identity.Web.Resource;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace POS.WebApi.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
@@ -30,7 +32,7 @@ namespace POS.WebApi.Controllers
             _userService = userService;
          
         }
-
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         // To store some already created products
         [HttpPost("SeedProducts")]
         public async Task<IActionResult> SeedProducts()
@@ -47,7 +49,7 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
-
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         //View a product by its id
         [HttpGet("GetByID/{id}")]
         public async Task<IActionResult> GetProductById(int id)
@@ -71,7 +73,7 @@ namespace POS.WebApi.Controllers
             
            
         }
-
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         //Adding a product
         [HttpPost("AddProduct")]
         public async Task<IActionResult> AddProduct(ProductDTO product)
@@ -109,6 +111,7 @@ namespace POS.WebApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminOrCashierRole")]
         //View all products
         [HttpGet("ViewProducts")]
         public async Task<IActionResult> ViewProducts()
@@ -126,7 +129,7 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
-
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         //Removing a product by its id
         [HttpDelete("RemoveProduct/{id}")]
         public async Task<IActionResult> RemoveProduct(int id)
@@ -152,7 +155,7 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
-
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         //Update a product 
         //Mention ID of the product you want to update
         [HttpPut("UpdateProduct")]
@@ -186,7 +189,7 @@ namespace POS.WebApi.Controllers
                 throw; // Rethrow to be caught by middleware
             }
         }
-
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         //In case admin wants to update exisiting product (only their quantity)
         //Mention the option (increment/decrement) in URL
         [HttpPut("UpdateStock/{id}/{option}/{quantity}")]

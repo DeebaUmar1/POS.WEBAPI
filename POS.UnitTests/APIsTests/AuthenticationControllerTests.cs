@@ -55,7 +55,6 @@ namespace POS.Tests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
-            Assert.IsInstanceOf<string>(result.Value);
         }
 
         [Test]

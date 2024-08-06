@@ -28,7 +28,6 @@ namespace POS.Data
             var databaseResponse = await _cosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseName);
             Database database = databaseResponse.Database;
 
-            // Create Container 1
             var containerResponse1 = await database.CreateContainerIfNotExistsAsync(
                 id: ContainerName1,
                 partitionKeyPath: "/id"  
