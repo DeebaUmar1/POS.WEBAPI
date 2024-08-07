@@ -65,6 +65,21 @@ namespace POS.Middlewares.Middlewares
                 };
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response));
             }
+            catch (CosmoException ex)
+            {
+                if (context.Response.HasStarted)
+                {
+                    throw;
+                }
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                context.Response.ContentType = "application/json";
+                var response = new
+                {
+                    error = ex.Message
+                }
+                ;
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            }
             catch (Exception ex)
             {
                 if (context.Response.HasStarted)
@@ -79,6 +94,8 @@ namespace POS.Middlewares.Middlewares
                 };
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response));
             }
+            
+
             //In case of forbidden exception ( User is not admin)
             if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
             {

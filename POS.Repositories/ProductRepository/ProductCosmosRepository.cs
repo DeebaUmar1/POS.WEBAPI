@@ -4,8 +4,8 @@ using POS.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
-
 namespace POS.Repositories.ProductRepository
 {
     public class ProductCosmosRepository : IProductRepository
@@ -103,6 +103,10 @@ namespace POS.Repositories.ProductRepository
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 return null;
+            }
+            catch(Exception ex)
+            {
+                throw;
             }
         }
 

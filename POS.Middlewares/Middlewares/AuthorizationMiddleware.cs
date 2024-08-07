@@ -30,12 +30,12 @@ namespace POS.Middlewares
                 return;
             }
             //To see if a user has logged in or not.
-           /* if (!context.User.Identity.IsAuthenticated)
+           if (!context.User.Identity.IsAuthenticated)
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("User is not authenticated.");
                 return;
-            }*/
+            }
             // This path is for all the roles of authenticated user.
             // Generally, admin is the person who has access to every functionality
             // That's why admin and cashier both has access to this api

@@ -23,6 +23,12 @@ namespace POS.Middlewares.Middlewares
         {
             public ValidationException(string message) : base(message) { }
         }
-
+        public class CosmoException : Exception
+        {
+            public CosmoException(string message) : base(message)
+            {
+                
+            }
+        }
     }
 }

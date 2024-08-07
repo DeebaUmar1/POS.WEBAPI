@@ -27,13 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\POS.Data\POS.Data.csproj" />
     <ProjectReference Include="..\POS.Mappers\POS.Mappers.csproj" />
     <ProjectReference Include="..\POS.Middlewares\POS.Middlewares.csproj" />
-    <ProjectReference Include="..\POS.Models\POS.Models.csproj" />
-    <ProjectReference Include="..\POS.Repositories\POS.Repositories.csproj" />
     <ProjectReference Include="..\POS.Services\POS.Services.csproj" />
-    <ProjectReference Include="..\POS.Validation\POS.Validation.csproj" />
   </ItemGroup>
 
 </Project>

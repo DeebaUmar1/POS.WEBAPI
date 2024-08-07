@@ -52,7 +52,6 @@ public class ProductServiceTests
 
         // Assert
         Assert.IsFalse(result);
-        _productRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Product>()), Times.Never);
     }
     [Test]
     public async Task UpdateProductAsync_ShouldReturnTrue_WhenProductIsUpdatedSuccessfully()

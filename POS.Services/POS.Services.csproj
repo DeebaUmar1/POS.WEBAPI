@@ -21,8 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\POS.Data\POS.Data.csproj" />
-    <ProjectReference Include="..\POS.Models\POS.Models.csproj" />
     <ProjectReference Include="..\POS.Repositories\POS.Repositories.csproj" />
   </ItemGroup>
 

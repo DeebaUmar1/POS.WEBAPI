@@ -72,7 +72,7 @@ namespace POS.Middlewares
                             {
                             new Claim(ClaimTypes.Name, username),
                             new Claim(ClaimTypes.Role, authenticatedUser.role.ToString()),// Assuming the User model has a Role property
-                            new Claim(ClaimTypes.NameIdentifier, authenticatedUser.Id.ToString())
+                            new Claim(ClaimTypes.NameIdentifier, authenticatedUser.id.ToString())
                         };
 
                             var identity = new ClaimsIdentity(claims, "Basic");
