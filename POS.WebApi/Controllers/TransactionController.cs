@@ -10,10 +10,10 @@ using static POS.Middlewares.Middlewares.CustomExceptions;
 namespace POS.WebApi.Controllers
 {
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
-    
+    [Authorize(Policy = "CashierPolicy")]
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
@@ -26,7 +26,7 @@ namespace POS.WebApi.Controllers
             _mapper = mapper;
             _logger = logger;
         }
-        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
+        //[Authorize(Policy = "CashierPolicy")]
         //Add Product to sale.
         //ID will be the id of any product in the inventory
         [HttpPost("AddProductToSale/{id}/{quantity}")]
@@ -62,8 +62,8 @@ namespace POS.WebApi.Controllers
             }
         }
 
-        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
-
+        //[Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
+       // [Authorize(Policy = "CashierPolicy")]
         //Cashier can view products in sale anytime
         [HttpGet("ViewProductsinSale")]
         public async Task<IActionResult> ViewSaleProducts()
@@ -93,7 +93,7 @@ namespace POS.WebApi.Controllers
             }
         }
 
-        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
+//        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
 
         //Cashier can update the sale(quantity) before generating receipt
         [HttpPut("UpdateProductsInSale/{id}/{quantity}")]
@@ -130,7 +130,7 @@ namespace POS.WebApi.Controllers
         }
 
 
-        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
+    //    [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
 
         //Generates the receipt of the products cashier added to sale
         [HttpGet("GenerateReceipt")]
@@ -163,7 +163,7 @@ namespace POS.WebApi.Controllers
             }
         }
 
-        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
+  //      [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
 
         //To calculate total amount
         [HttpGet("CalculateTotalAmount")]

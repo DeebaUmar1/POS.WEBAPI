@@ -80,6 +80,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         "Bearer",
         true);
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminPolicy", policy =>
+           policy.RequireRole("Admin"));
+    //options.AddPolicy("AdminPolicy", policy => policy.RequireClaim("roles", "Admin"));
+    options.AddPolicy("CashierPolicy", policy => policy.RequireRole( "Cashier"));
+});
 
 builder.Services.AddControllers();
 //
@@ -103,7 +110,7 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<TransactionService>();
 */
-builder.Services.AddAuthentication(options =>
+/*builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = "Roles";
     options.DefaultChallengeScheme = "Roles";
@@ -132,7 +139,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireAdminOrCashierRole", policy =>
        policy.RequireRole("Admin", "Cashier"));
 });
-
+*/
 
 // Configure CosmosClient
 var secret = await keyVaultClient.GetSecretAsync("COSMOSCONNECTIONSTRING");

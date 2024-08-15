@@ -14,8 +14,8 @@ namespace POS.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Policy = "AdminPolicy")]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PurchaseController : ControllerBase
     {
         private readonly IPurchaseProductServices purchaseProduct;

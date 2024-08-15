@@ -38,7 +38,7 @@ namespace POS.WebApi.Controllers
        
         //To store users
         
-        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
+        //[Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         [HttpPost("SeedUsers")]
         public async Task<IActionResult> SeedUsers()
         {
@@ -117,6 +117,7 @@ namespace POS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO user)
         {
@@ -173,7 +174,7 @@ namespace POS.WebApi.Controllers
             }
         }
 
-        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
+        [Authorize(Policy = "AdminPolicy")]
         [HttpPost("setrole")]
         public async Task<IActionResult> SetRole([FromBody] SetRoleModelDTO model)
         {
